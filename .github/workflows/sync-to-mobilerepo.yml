@@ -1,0 +1,46 @@
+name: Sync Desktop repository to Mobile repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Desktop (source)
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "kvivekkannan"
+          git config user.email "kviveknishanth@gmail.com"
+
+      - name: Clone Mobile (destination)
+        env:
+          REPOB_REPO_SECRET: ${{ secrets.Desktop_To_Mobile_Sync_Token }}
+        run: |
+          git clone https://x-access-token:${Desktop_To_Mobile_Sync_Token}@github.com/kvivekkannan/Mobile.git mobile
+          cd mobile
+          git checkout sync-branch || git checkout -b sync-branch
+          git config user.name "kvivekkannan"
+          git config user.email "kviveknishanth@gmail.com"
+
+      - name: Mirror files (Desktop → Mobile)
+        run: |
+          rsync -av --delete \
+            --exclude '.git' \
+            --exclude '.github/workflows' \
+            --exclude '.github/workflows/sync-to-mobilerepo.yml' \
+            --exclude 'README.md' \
+            --exclude 'docs/' \
+            ./ ./mobile/
+
+      - name: Commit and Push changes
+        working-directory: ./mobile
+        run: |
+          git add .
+          git commit -m "🔄 Full mirror from Desktop on $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push origin sync-branch
