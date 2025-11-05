@@ -20,9 +20,9 @@ jobs:
 
       - name: Clone Mobile (destination)
         env:
-          REPOB_REPO_SECRET: ${{ secrets.Mobile_To_Desktop_Sync_Token }}
+          REPOB_REPO_SECRET: ${{ secrets.REPO_SYNC_SECRET }}
         run: |
-          git clone https://x-access-token:${Mobile_To_Desktop_Sync_Token}@github.com/kvivekkannan/Mobile.git mobile
+          git clone https://x-access-token:${REPO_SYNC_SECRET}@github.com/kvivekkannan/Mobile.git mobile
           cd mobile
           git checkout sync-branch || git checkout -b sync-branch
           git config user.name "kvivekkannan"
