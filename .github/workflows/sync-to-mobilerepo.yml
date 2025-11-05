@@ -20,9 +20,9 @@ jobs:
 
       - name: Clone Mobile (destination)
         env:
-          REPOB_REPO_SECRET: ${{ secrets.REPO_SYNC_SECRET }}
+          MOBILE_REPO_TOKEN: ${{ secrets.MOBILE_REPO_TOKEN }}
         run: |
-          git clone https://x-access-token:${REPO_SYNC_SECRET}@github.com/kvivekkannan/Mobile.git mobile
+          git clone https://x-access-token:${MOBILE_REPO_TOKEN}@github.com/kvivekkannan/Mobile.git mobile
           cd mobile
           git checkout sync-branch || git checkout -b sync-branch
           git config user.name "kvivekkannan"
@@ -40,7 +40,9 @@ jobs:
 
       - name: Commit and Push changes
         working-directory: ./mobile
+        env:
+          MOBILE_REPO_TOKEN: ${{ secrets.MOBILE_REPO_TOKEN }}
         run: |
           git add .
           git commit -m "🔄 Full mirror from Desktop on $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push origin sync-branch
+          git push https://x-access-token:${MOBILE_REPO_TOKEN}@github.com/kvivekkannan/Mobile.git sync-branch
