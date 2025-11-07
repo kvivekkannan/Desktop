@@ -1,13 +1,9 @@
-# ---- Stage 1: Build ----
-FROM node:18-alpine AS build
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 COPY . .
-RUN npm install && npm run build
+RUN dotnet publish -c Release -o /app/publish
 
-# ---- Stage 2: Run ----
-FROM node:18-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/dist ./dist
-COPY package*.json ./
-RUN npm install --only=production
-CMD ["node", "dist/server.js"]
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "Desktop.dll"]
